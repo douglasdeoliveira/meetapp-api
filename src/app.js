@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/node';
+import cors from 'cors';
 import express from 'express';
 import path from 'path';
 import Youch from 'youch';
@@ -23,6 +24,7 @@ class App {
 
   middlewares() {
     this.server.use(Sentry.Handlers.requestHandler());
+    this.server.use(cors());
     this.server.use(express.json());
     this.server.use(express.urlencoded({ extended: false }));
     this.server.use(

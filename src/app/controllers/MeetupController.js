@@ -2,6 +2,7 @@ import { endOfDay, isBefore, parseISO, startOfDay } from 'date-fns';
 import { Op } from 'sequelize';
 import * as Yup from 'yup';
 
+import File from '../models/File';
 import Meetup from '../models/Meetup';
 import User from '../models/User';
 
@@ -31,6 +32,22 @@ class MeetupController {
     });
 
     return res.json(meetups);
+  }
+
+  async findById(req, res) {
+    const { id } = req.params;
+    const meetup = await Meetup.findByPk(id, {
+      attributes: ['title', 'description', 'location', 'date', 'file_id'],
+      include: [
+        {
+          model: File,
+          as: 'file',
+          attributes: ['path', 'url'],
+        },
+      ],
+    });
+
+    return res.json(meetup);
   }
 
   async save(req, res) {

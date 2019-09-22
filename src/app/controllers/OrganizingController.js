@@ -13,6 +13,7 @@ class OrganizingController {
         'past',
         'user_id',
       ],
+      order: ['date'],
     });
 
     return res.json(meetups);

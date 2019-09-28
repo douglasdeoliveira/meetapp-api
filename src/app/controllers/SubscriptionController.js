@@ -2,6 +2,7 @@ import { Op } from 'sequelize';
 
 import Queue from '../../lib/Queue';
 import SubscriptionMail from '../jobs/SubscriptionMail';
+import File from '../models/File';
 import Meetup from '../models/Meetup';
 import Subscription from '../models/Subscription';
 import User from '../models/User';
@@ -28,9 +29,20 @@ class SubscriptionController {
             'location',
             'date',
             'past',
-            'user_id',
           ],
           required: true,
+          include: [
+            {
+              model: User,
+              as: 'user',
+              attributes: ['id', 'name', 'email'],
+            },
+            {
+              model: File,
+              as: 'file',
+              attributes: ['path', 'url'],
+            },
+          ],
         },
       ],
       order: [[Meetup, 'date']],
@@ -42,7 +54,12 @@ class SubscriptionController {
   async save(req, res) {
     const user = await User.findByPk(req.userId);
     const meetup = await Meetup.findByPk(req.params.meetupId, {
-      include: [User],
+      include: [
+        {
+          model: User,
+          as: 'user',
+        },
+      ],
     });
 
     if (meetup.user_id === req.userId) {

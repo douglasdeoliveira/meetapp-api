@@ -105,6 +105,35 @@ class SubscriptionController {
 
     return res.json(subscription);
   }
+
+  async delete(req, res) {
+    const subscription = await Subscription.findByPk(req.params.id, {
+      include: [
+        {
+          model: Meetup,
+          include: [
+            {
+              model: User,
+              as: 'user',
+              attributes: ['id', 'name', 'email'],
+            },
+          ],
+          attributes: ['id', 'title', 'date', 'location'],
+        },
+      ],
+    });
+
+    if (subscription.Meetup.past) {
+      res.status(403).json({
+        error:
+          'Você não pode cancelar a inscrição de um meetup que já aconteceu.',
+      });
+    }
+
+    await subscription.destroy();
+
+    return res.send();
+  }
 }
 
 export default new SubscriptionController();

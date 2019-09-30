@@ -4,6 +4,7 @@ import * as Yup from 'yup';
 
 import File from '../models/File';
 import Meetup from '../models/Meetup';
+import Subscription from '../models/Subscription';
 import User from '../models/User';
 
 class MeetupController {
@@ -39,7 +40,22 @@ class MeetupController {
       order: ['date'],
     });
 
-    return res.json(meetups);
+    const subscriptions = await Subscription.findAll({
+      where: {
+        user_id: req.userId,
+      },
+    });
+
+    const freeMeetups = meetups.filter(meetup => {
+      if (
+        subscriptions.find(subscription => subscription.meetup_id === meetup.id)
+      ) {
+        return null;
+      }
+      return meetup;
+    });
+
+    return res.json(freeMeetups);
   }
 
   async findById(req, res) {

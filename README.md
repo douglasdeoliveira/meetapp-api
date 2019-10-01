@@ -1,14 +1,96 @@
-# Desafio 03. Continuando aplicação
+# Meetapp API
+
+## Como executar
+
+### Configuração do ambiente
+
+Em primeiro lugar você deve criar uma cópia do arquivo `.env.example` na raiz do projeto e renomear para `.env`.
+
+Feito isso, você deve preenchê-lo com as informações dos bancos de dados Postgres (ou MySQL), MongoDB e Redis. Além de preencher também um código para o `APP_SECRET` e as configurações para o envio de e-mail.
+
+_Não é obrigatório o preenchimento do `SENTRY_DSN`_
+
+### Scripts de execução
+
+Instalando as dependências:
+
+```
+yarn install
+```
+
+Criando as tabelas no banco de dados:
+
+```
+yarn sequelize db:migrate
+```
+
+Inserindo dados fakes:
+
+```
+yarn sequelize db:seed:all
+```
+
+Iniciando o servidor da API:
+
+```
+yarn dev
+```
+
+Iniciando o servidor de e-mail:
+
+```
+yarn queue
+```
+
+### Informação de acesso
+
+Caso você tenha executado o comando para inserir dados fakes, você poderá acessar o sistema com o usuário de demonstração com os seguintes dados:
+
+**e-mail:** douglas@demo.com
+
+**senha:** 123456
+
+## Back-end: Parte 01
+
+Crie uma aplicação do zero utilizando Express ou Adonis.
+
+Nessa aplicação configure as seguintes ferramentas:
+
+- Sucrase + Nodemon;
+- ESLint + Prettier + EditorConfig;
+- Sequelize (Utilize PostgresSQL ou MySQL);
+
+Durante esse desafio você dará início a um novo projeto no Bootcamp, esse projeto será desenvolvido aos poucos até o fim da sua jornada onde você terá uma aplicação completa envolvendo back-end, front-end e mobile.
+
+Esse projeto também será utilizado para a certificação do bootcamp, então bora pro código!
+
+## Back-end: Parte 02
 
 Durante esse desafio vamos aprimorar a aplicação Meetapp que demos início no desafio anterior implementando funcionalidades que aprendemos durante as aulas até agora.
+
+## Aplicação
+
+A aplicação que iremos dar início ao desenvolvimento a partir de agora é um app agregador de eventos para desenvolvedores chamado Meetapp (um acrônimo à Meetup + App).
 
 ## Funcionalidades
 
 Abaixo estão descritas as funcionalidades que você deve adicionar em sua aplicação.
 
-### Gerenciamento de arquivos
+### Autenticação
 
-Crie uma rota para upload de arquivos que cadastra em uma tabela o caminho e nome do arquivo e retorna todos dados do arquivo cadastrado.
+Permita que um usuário se autentique em sua aplicação utilizando e-mail e senha.
+
+- A autenticação deve ser feita utilizando JWT.
+- Realize a validação dos dados de entrada;
+
+### Cadastro e atualização de usuários
+
+Permita que novos usuários se cadastrem em sua aplicação utilizando nome, e-mail e senha.
+
+Para atualizar a senha, o usuário deve também enviar um campo de confirmação com a mesma senha.
+
+- Criptografe a senha do usuário para segurança.
+- Realize a validação dos dados de entrada;
 
 ### Gerenciamento de meetups
 
@@ -39,7 +121,7 @@ Sempre que um usuário se inscrever no meetup, envie um e-mail ao organizador co
 Crie uma rota para listar os meetups com filtro por data (não por hora), os resultados dessa listagem devem vir paginados em 10 itens por página. Abaixo tem um exemplo de chamada para a rota de listagem dos meetups:
 
 ```
-http://localhost:3000/meetups?date=2019-07-01&page=2
+http://localhost:3333/meetups?date=2019-07-01&page=2
 ```
 
 Nesse exemplo, listaremos a página 2 dos meetups que acontecerão no dia 01 de Julho.

@@ -1,12 +1,12 @@
-import Sequelize from 'sequelize';
 import mongoose from 'mongoose';
+import Sequelize from 'sequelize';
 
-import databaseConfig from '../config/database';
-
-import User from '../app/models/User';
+import File from '../app/models/File';
 import Meetup from '../app/models/Meetup';
 import Subscription from '../app/models/Subscription';
-import File from '../app/models/File';
+import User from '../app/models/User';
+import databaseConfig from '../config/database';
+import mongoConfig from '../config/mongo';
 
 const models = [User, File, Meetup, Subscription];
 
@@ -14,17 +14,9 @@ class Database {
   constructor() {
     this.connection = new Sequelize(databaseConfig);
 
-    const { MONGO_HOST, MONGO_PORT, MONGO_NAME } = process.env;
-
-    const mongoURI = `mongodb://${MONGO_HOST}:${MONGO_PORT}/${MONGO_NAME}`;
-
-    this.mongoConnection = mongoose.connect(mongoURI, {
-      useNewUrlParser: true,
-      useFindAndModify: true,
-    });
-
     this.init();
     this.associate();
+    this.mongo();
   }
 
   init() {
@@ -36,6 +28,16 @@ class Database {
       if (model.associate) {
         model.associate(this.connection.models);
       }
+    });
+  }
+
+  mongo() {
+    const { host, port, database } = mongoConfig;
+    const mongoURI = `mongodb://${host}:${port}/${database}`;
+
+    this.mongoConnection = mongoose.connect(mongoURI, {
+      useNewUrlParser: true,
+      useFindAndModify: true,
     });
   }
 }

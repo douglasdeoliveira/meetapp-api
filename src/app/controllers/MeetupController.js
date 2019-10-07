@@ -58,19 +58,7 @@ class MeetupController {
   }
 
   async findById(req, res) {
-    const { id } = req.params;
-    const meetup = await Meetup.findByPk(id, {
-      attributes: ['title', 'description', 'location', 'date', 'file_id'],
-      include: [
-        {
-          model: File,
-          as: 'file',
-          attributes: ['path', 'url'],
-        },
-      ],
-    });
-
-    return res.json(meetup);
+    return res.json(req.meetup);
   }
 
   async save(req, res) {
@@ -89,45 +77,17 @@ class MeetupController {
   }
 
   async update(req, res) {
-    const user_id = req.userId;
-
-    const meetup = await Meetup.findByPk(req.params.id);
-
-    if (!meetup) {
-      return res.status(404).json({ error: 'Meetup not found.' });
-    }
-
-    if (meetup.user_id !== user_id) {
-      return res.status(401).json({ error: 'Not authorized.' });
-    }
-
     if (isBefore(parseISO(req.body.date), new Date())) {
       return res.status(400).json({ error: 'Meetup date invalid' });
     }
 
-    if (meetup.past) {
-      return res.status(400).json({ error: "Can't update past meetups." });
-    }
+    await req.meetup.update(req.body);
 
-    await meetup.update(req.body);
-
-    return res.json(meetup);
+    return res.json(req.meetup);
   }
 
   async delete(req, res) {
-    const user_id = req.userId;
-
-    const meetup = await Meetup.findByPk(req.params.id);
-
-    if (meetup.user_id !== user_id) {
-      return res.status(401).json({ error: 'Not authorized.' });
-    }
-
-    if (meetup.past) {
-      return res.status(400).json({ error: "Can't delete past meetups." });
-    }
-
-    await meetup.destroy();
+    await req.meetup.destroy();
 
     return res.send();
   }

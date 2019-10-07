@@ -7,7 +7,10 @@ import OrganizingController from './app/controllers/OrganizingController';
 import SessionController from './app/controllers/SessionController';
 import SubscriptionController from './app/controllers/SubscriptionController';
 import UserController from './app/controllers/UserController';
-import authMiddleware from './app/middlewares/auth';
+import authMiddleware from './app/middlewares/Auth';
+import MeetupLoader from './app/middlewares/MeetupLoader';
+import MeetupPastDate from './app/middlewares/MeetupPastDate';
+import MeetupPermission from './app/middlewares/MeetupPermission';
 import validateMeetupSave from './app/validators/MeetupSave';
 import validateMeetupUpdate from './app/validators/MeetupUpdate';
 import validateSessionSave from './app/validators/SessionSave';
@@ -21,6 +24,7 @@ const upload = multer(multerConfig);
 
 /* Auth */
 routes.post('/sessions', validateSessionSave, SessionController.save);
+routes.post('/sessions/refresh', SessionController.update);
 
 /* Users */
 routes.post('/users', validateUserSave, UserController.save);
@@ -32,10 +36,22 @@ routes.post('/files', upload.single('file'), FileController.save);
 
 /* Meetups */
 routes.get('/meetups', MeetupController.index);
-routes.get('/meetups/:id', MeetupController.findById);
 routes.post('/meetups', validateMeetupSave, MeetupController.save);
-routes.put('/meetups/:id', validateMeetupUpdate, MeetupController.update);
-routes.delete('/meetups/:id', MeetupController.delete);
+routes.use('/meetups/:id', MeetupLoader);
+routes.get('/meetups/:id', MeetupController.findById);
+routes.put(
+  '/meetups/:id',
+  validateMeetupUpdate,
+  MeetupPermission,
+  MeetupPastDate,
+  MeetupController.update
+);
+routes.delete(
+  '/meetups/:id',
+  MeetupPermission,
+  MeetupPastDate,
+  MeetupController.delete
+);
 
 /* Organizing */
 routes.get('/organizing', OrganizingController.index);

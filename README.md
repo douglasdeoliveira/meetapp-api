@@ -133,3 +133,7 @@ Nessa listagem retorne também os dados do organizador.
 Crie uma rota para listar os meetups em que o usuário logado está inscrito.
 
 Liste apenas meetups que ainda não passaram e ordene meetups mais próximos como primeiros da lista.
+
+## TODO
+
+- Desenvolver e implementar testes

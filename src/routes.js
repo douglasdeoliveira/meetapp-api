@@ -11,6 +11,11 @@ import authMiddleware from './app/middlewares/Auth';
 import MeetupLoader from './app/middlewares/MeetupLoader';
 import MeetupPastDate from './app/middlewares/MeetupPastDate';
 import MeetupPermission from './app/middlewares/MeetupPermission';
+import SubscriptionDateConflict from './app/middlewares/SubscriptionDateConflict';
+import SubscriptionDuplicated from './app/middlewares/SubscriptionDuplicated';
+import SubscriptionLoader from './app/middlewares/SubscriptionLoader';
+import SubscriptionOwner from './app/middlewares/SubscriptionOwner';
+import SubscriptionPastDate from './app/middlewares/SubscriptionPastDate';
 import validateMeetupSave from './app/validators/MeetupSave';
 import validateMeetupUpdate from './app/validators/MeetupUpdate';
 import validateSessionSave from './app/validators/SessionSave';
@@ -19,7 +24,6 @@ import validateUserUpdate from './app/validators/UserUpdate';
 import multerConfig from './config/multer';
 
 const routes = new Router();
-
 const upload = multer(multerConfig);
 
 /* Auth */
@@ -35,9 +39,9 @@ routes.put('/users', validateUserUpdate, UserController.update);
 routes.post('/files', upload.single('file'), FileController.save);
 
 /* Meetups */
+routes.use('/meetups/:id', MeetupLoader);
 routes.get('/meetups', MeetupController.index);
 routes.post('/meetups', validateMeetupSave, MeetupController.save);
-routes.use('/meetups/:id', MeetupLoader);
 routes.get('/meetups/:id', MeetupController.findById);
 routes.put(
   '/meetups/:id',
@@ -57,8 +61,20 @@ routes.delete(
 routes.get('/organizing', OrganizingController.index);
 
 /* Subscriptions */
+routes.use('/subscriptions/:id', SubscriptionLoader);
 routes.get('/subscriptions', SubscriptionController.index);
-routes.delete('/subscriptions/:id', SubscriptionController.delete);
-routes.post('/meetups/:meetupId/subscriptions', SubscriptionController.save);
+routes.delete(
+  '/subscriptions/:id',
+  SubscriptionPastDate,
+  SubscriptionController.delete
+);
+routes.post(
+  '/meetups/:id/subscriptions',
+  // MeetupPastDate,
+  SubscriptionOwner,
+  SubscriptionDuplicated,
+  SubscriptionDateConflict,
+  SubscriptionController.save
+);
 
 export default routes;

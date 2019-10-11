@@ -17,6 +17,7 @@ class SubscriptionController {
       include: [
         {
           model: Meetup,
+          as: 'meetup',
           where: {
             date: {
               [Op.gt]: new Date(),
@@ -45,7 +46,7 @@ class SubscriptionController {
           ],
         },
       ],
-      order: [[Meetup, 'date']],
+      order: [['meetup', 'date']],
     });
 
     return res.json(subscriptions);
@@ -53,53 +54,14 @@ class SubscriptionController {
 
   async save(req, res) {
     const user = await User.findByPk(req.userId);
-    const meetup = await Meetup.findByPk(req.params.meetupId, {
-      include: [
-        {
-          model: User,
-          as: 'user',
-        },
-      ],
-    });
-
-    if (meetup.user_id === req.userId) {
-      return res
-        .status(400)
-        .json({ error: "Can't subscribe to you own meetups" });
-    }
-
-    if (meetup.past) {
-      return res.status(400).json({ error: "Can't subscribe to past meetups" });
-    }
-
-    const checkDate = await Subscription.findOne({
-      where: {
-        user_id: user.id,
-      },
-      include: [
-        {
-          model: Meetup,
-          required: true,
-          where: {
-            date: meetup.date,
-          },
-        },
-      ],
-    });
-
-    if (checkDate) {
-      return res
-        .status(400)
-        .json({ error: "Can't subscribe to two meetups at the same time" });
-    }
 
     const subscription = await Subscription.create({
-      user_id: user.id,
-      meetup_id: meetup.id,
+      user_id: req.userId,
+      meetup_id: req.meetup.id,
     });
 
     await Queue.add(SubscriptionMail.key, {
-      meetup,
+      meetup: req.meetup,
       user,
     });
 
@@ -107,30 +69,7 @@ class SubscriptionController {
   }
 
   async delete(req, res) {
-    const subscription = await Subscription.findByPk(req.params.id, {
-      include: [
-        {
-          model: Meetup,
-          include: [
-            {
-              model: User,
-              as: 'user',
-              attributes: ['id', 'name', 'email'],
-            },
-          ],
-          attributes: ['id', 'title', 'date', 'location'],
-        },
-      ],
-    });
-
-    if (subscription.Meetup.past) {
-      res.status(403).json({
-        error:
-          'Você não pode cancelar a inscrição de um meetup que já aconteceu.',
-      });
-    }
-
-    await subscription.destroy();
+    await req.subscription.destroy();
 
     return res.send();
   }

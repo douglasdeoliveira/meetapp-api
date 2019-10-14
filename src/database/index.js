@@ -16,7 +16,7 @@ class Database {
 
     this.init();
     this.associate();
-    this.mongo();
+    // this.mongo();
   }
 
   init() {

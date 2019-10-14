@@ -6,9 +6,9 @@
 
 Em primeiro lugar você deve criar uma cópia do arquivo `.env.example` na raiz do projeto e renomear para `.env`.
 
-Feito isso, você deve preenchê-lo com as informações dos bancos de dados Postgres (ou MySQL), MongoDB e Redis. Além de preencher também um código para o `APP_SECRET` e as configurações para o envio de e-mail.
+Feito isso, você deve preenchê-lo com as informações dos bancos de dados Postgres (ou MySQL) e Redis. Além de preencher também um código para o `APP_SECRET` e as configurações para o envio de e-mail.
 
-_Não é obrigatório o preenchimento do `SENTRY_DSN`_
+_Não é obrigatório o preenchimento da conexão com o MongoDB e do `SENTRY_DSN`_
 
 ### Scripts de execução
 
@@ -137,3 +137,4 @@ Liste apenas meetups que ainda não passaram e ordene meetups mais próximos com
 ## TODO
 
 - Desenvolver e implementar testes
+- Desenvolver notificações utilizando MongoDB
